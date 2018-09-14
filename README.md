@@ -59,7 +59,7 @@ Building blocks:
 - A Junos device is configured to send syslog messages to SaltStack.
 - Based on syslog messages received, SaltStack automatically collects junos show commands on the the device that sent a syslog message, and archives the collected data on a Git server.
 
-![continous_backup.png](continous_backup.png)  
+![Automated_show_commands_collection.png](Automated_show_commands_collection.png)  
 
 ## Details 
 
