@@ -901,6 +901,8 @@ to watch the 0MQ event bus, run this command
 
 ## Trigger a syslog message from a junos device 
 
+Shutdown an interface of a junos device.  
+
 ```
 jcluser@vMX-1# run show interfaces ge-0/0/1 terse
 Interface               Admin Link Proto    Local                 Remote
@@ -916,6 +918,7 @@ Interface               Admin Link Proto    Local                 Remote
 ge-0/0/1                down  down
 ```
 
+The operationnal state moved from up to down.  
 The junos device sent a syslog message ```SNMP_TRAP_LINK_DOWN``` to SaltStack.  
 SaltStack rans show commands on this device and archived the data collected on a git server.   
 
