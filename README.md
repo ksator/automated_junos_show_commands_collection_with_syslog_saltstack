@@ -27,7 +27,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Configure SaltStack files server](#configure-saltstack-files-server)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Configure SaltStack junos syslog engine](#configure-saltstack-junos-syslog-engine)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Configure SaltStack reactor](#configure-saltstack-reactor)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Configure Junos devices to send commit messages to salt master](#configure-junos-devices-to-send-commit-messages-to-salt-master)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Configure Junos devices to send syslog messages to salt master](#configure-junos-devices-to-send-syslog-messages-to-salt-master)  
 [Familiarize yourself with this setup](#familiarize-yourself-with-this-setup)  
 [Run the demo](#run-the-demo)  
 
@@ -780,7 +780,7 @@ The data collected by the proxy ```vMX-1``` is archived in the repository ```dat
 Access Gitlab GUI with a browser ```http://100.123.35.1:9080/organization/data_collected```  
 
 
-### Configure Junos devices to send commit messages to salt master
+### Configure Junos devices to send syslog messages to salt master
 
 The Salt master is listening junos syslog messages on port 516.  
 The pillar [production.sls](pillars/production.sls) defines the variable ```syslog_host```.  
