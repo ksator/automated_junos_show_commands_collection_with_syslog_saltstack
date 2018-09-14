@@ -33,9 +33,9 @@
 
 # Project description
 
-At each junos commit, SaltStack automatically collects the new junos configuration file and archives it to a git server  
+Based on syslog messages received from Junos, SaltStack automatically collects junos show commands on the device that sent a syslog message, and archives the collected data on a Git server.  
 
-This is a relatively simple demo. For a more advanced, robust, scalable, distributed and automated equivalent demo, please visit the repository https://github.com/ksator/automation_summit_Q3_2018  
+This is a relatively simple demo. For a more advanced equivalent demo, please visit the repository https://github.com/ksator/automation_summit_Q3_2018  
 
 # Lab description
 
@@ -56,10 +56,8 @@ Building blocks:
 
 ## Overview 
 
-At each junos commit, SaltStack automatically collects the new junos configuration file and archives it to a git server: 
-- When a Junos commit is completed, the Junos device send a syslog message ```UI_COMMIT_COMPLETED```.  
-- The junos device is configured to send this syslog message to SaltStack.  
-- Each time SaltStack receives this syslog message, SaltStack automatically collects the new junos configuration file from the Junos device that sent this commit syslog message, and SaltStack automatically archives the new Junos configuration file to a git server  
+- A Junos device is configured to send syslog messages to SaltStack.
+- Based on syslog messages received, SaltStack automatically collects junos show commands on the the device that sent a syslog message, and archives the collected data on a Git server.
 
 ![continous_backup.png](continous_backup.png)  
 
@@ -72,7 +70,7 @@ Here's a more detailled description of this [demo](Automated_Junos_data_collecti
 ### Junos
 - There is one single Junos device
 - The hostname is ```vMX-1```
-- It is configured to send the syslog message ```UI_COMMIT_COMPLETED``` to SaltStack when a commit is completed
+- It is configured to send ```SNMP_TRAP_LINK_UP``` and ```SNMP_TRAP_LINK_DOWN``` syslog messages to SaltStack 
 
 ### SaltStack
 - This demo uses these SaltStack components: A master, a minion, a proxy, the junos_syslog engine.  
@@ -81,7 +79,7 @@ Here's a more detailled description of this [demo](Automated_Junos_data_collecti
 - The Salt master generates a ZMQ messages to the event bus when a junos syslog message is received. The ZMQ message has a tag and data. The data structure is a dictionary, which contains information about the event.
 - The Salt reactor binds sls files to event tags. The reactor has a list of event tags to be matched, and each event tag has a list of reactor SLS files to be run. So these sls files define the SaltStack reactions.
 - The sls reactor file used in this content does the following: it parses the data from the ZMQ message to extract the network device name. It then ask to the proxy that manages the "faulty" device to execute an sls file.
-- The sls file executed by the proxy collects the new junos configuration and archives the collected data to a git server  
+- The sls file executed by the proxy collects junos show commands and archives the collected data to a git server  
 
 ### Gitlab  
 - This SaltStack setup uses the gitlab server for external pillars (variables) 
@@ -248,7 +246,7 @@ Create these new projects in the group ```organization```
 
 the repository ```network_parameters``` is used for SaltStack external pillars  
 the repository ```network_model``` is used as an external files server for SaltStack   
-the repository ```data_collected``` is used to backup Junos configuration files
+the repository ```data_collected``` is used to archive the output of junos show commands  
 
 ### Add your public key to Gitlab
 The Ubuntu host will inteact with the Gitlab server. 
@@ -734,7 +732,7 @@ To map some events to reactor sls files, copy the [reactor configuration file](r
 # cp automated_junos_show_commands_collection_with_syslog_saltstack/reactor.conf /etc/salt/master.d/
 # more /etc/salt/master.d/reactor.conf
 ```
-This reactor binds ```jnpr/syslog/*/UI_COMMIT_COMPLETED``` to ```/srv/reactor/automate_show_commands.sls```  
+This reactor binds ```jnpr/syslog/*/SNMP_TRAP_LINK_*``` to ```/srv/reactor/automate_show_commands.sls```  
 
 #### Restart the salt master service
 ```
@@ -756,7 +754,7 @@ and copy [these sls reactor files](reactors) to the directory ```/srv/reactor/``
 # more /srv/reactor/automate_show_commands.sls
 ```
 
-The reactor [automate_show_commands.sls](reactor/automate_show_commands.sls) parses the data from the ZMQ message that has the tags ```jnpr/syslog/*/UI_COMMIT_COMPLETED``` and extracts the network device name and asks to the proxy that manages the device that send this syslog message to apply the state file [collect_data_and_archive_to_git.sls](states/collect_data_and_archive_to_git.sls)
+The reactor [automate_show_commands.sls](reactor/automate_show_commands.sls) parses the data from the ZMQ message that has the tags ```jnpr/syslog/*/SNMP_TRAP_LINK_*``` and extracts the network device name and asks to the proxy that manages the device that send this syslog message to apply the state file [collect_data_and_archive_to_git.sls](states/collect_data_and_archive_to_git.sls)
 
 The state file [collect_data_and_archive_to_git.sls](states/collect_data_and_archive_to_git.sls) executed by the proxy is located in the ```network_model``` repository.  
 It collects show commands and archives the data collected to a git server.  
@@ -904,12 +902,22 @@ to watch the 0MQ event bus, run this command
 ## Trigger a syslog message from a junos device 
 
 ```
-jcluser@vMX-1# set system login message "welcome to this demo"
-jcluser@vMX-1# commit and-quit
+jcluser@vMX-1# run show interfaces ge-0/0/1 terse
+Interface               Admin Link Proto    Local                 Remote
+ge-0/0/1                up    up
+
+jcluser@vMX-1# set interfaces ge-0/0/1 disable
+
+jcluser@vMX-1# commit
+commit complete
+
+jcluser@vMX-1# run show interfaces ge-0/0/1 terse
+Interface               Admin Link Proto    Local                 Remote
+ge-0/0/1                down  down
 ```
 
-The junos device sent a syslog message ```UI_COMMIT_COMPLETED``` to SaltStack.  
-SaltStack rans show commands on this device to collect the new junos configuration and other details and archived the data collected on a git server.   
+The junos device sent a syslog message ```SNMP_TRAP_LINK_DOWN``` to SaltStack.  
+SaltStack rans show commands on this device and archived the data collected on a git server.   
 
 ## Verify on the git server 
 
