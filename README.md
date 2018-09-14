@@ -84,7 +84,7 @@ Here's a more detailled description of this [demo](Automated_Junos_data_collecti
 ### Gitlab  
 - This SaltStack setup uses the gitlab server for external pillars (variables) 
 - This SaltStack setup uses the gitlab server as a remote file server (templates, sls files, ...).  
-- The Junos configuration is automatically saved on the Gitlab server
+- Junos show commands output is automatically saved on the Gitlab server
 
 ### Ubuntu
 - There is one single Ubuntu host 
