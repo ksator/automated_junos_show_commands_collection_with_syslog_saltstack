@@ -65,7 +65,7 @@ At each junos commit, SaltStack automatically collects the new junos configurati
 
 ## Details 
 
-Here's a more detailled description of this [demo](Automated_Junos_configuration_backup.pdf) 
+Here's a more detailled description of this [demo](Automated_Junos_data_collection.pdf) 
 
 ## Building blocks description
 
@@ -110,8 +110,8 @@ Here's a more detailled description of this [demo](Automated_Junos_configuration
 ```
 $ sudo -s
 # cd
-# git clone https://github.com/ksator/automated_junos_configuration_backup_on_git_with_syslog_saltstack.git
-# ls automated_junos_configuration_backup_on_git_with_syslog_saltstack
+# git clone https://github.com/ksator/automated_junos_show_commands_collection_with_syslog_saltstack.git
+# ls automated_junos_show_commands_collection_with_syslog_saltstack
 ```
 
 ## Install Docker
@@ -244,11 +244,11 @@ Create the group ```organization``` (Public)
 Create these new projects in the group ```organization```
 - ```network_parameters``` (Public, add Readme)  
 - ```network_model``` (Public, add Readme)  
-- ```configuration_backup``` (Public, add Readme)  
+- ```data_collected``` (Public, add Readme)  
 
 the repository ```network_parameters``` is used for SaltStack external pillars  
 the repository ```network_model``` is used as an external files server for SaltStack   
-the repository ```configuration_backup``` is used to backup Junos configuration files
+the repository ```data_collected``` is used to backup Junos configuration files
 
 ### Add your public key to Gitlab
 The Ubuntu host will inteact with the Gitlab server. 
@@ -309,7 +309,7 @@ Clone all the repositories:
 $ sudo -s
 # git clone git@100.123.35.1:organization/network_parameters.git
 # git clone git@100.123.35.1:organization/network_model.git
-# git clone git@100.123.35.1:organization/configuration_backup.git
+# git clone git@100.123.35.1:organization/data_collected.git
 # ls
 # cd network_parameters
 # git remote -v
@@ -475,7 +475,7 @@ Junos_syslog engine  listens to syslog messages from Junos devices, extracts eve
 Copy the [SaltStack master configuration file](master) in the file ```/etc/salt/master```
 
 ```
-# cp automated_junos_configuration_backup_on_git_with_syslog_saltstack/master /etc/salt/master
+# cp automated_junos_show_commands_collection_with_syslog_saltstack/master /etc/salt/master
 ```
 So: 
 - the Salt master is listening junos syslog messages on port 516. For each junos syslog message received, it generates an equivalent ZMQ message and publish it to the event bus
@@ -518,7 +518,7 @@ To check the status, you can run these commands:
 Copy the [minion configuration file](minion) in the file ```/etc/salt/minion```
 
 ```
-# cp automated_junos_configuration_backup_on_git_with_syslog_saltstack/minion /etc/salt/minion
+# cp automated_junos_show_commands_collection_with_syslog_saltstack/minion /etc/salt/minion
 ```
 
 #### Restart the salt-minion service
@@ -584,7 +584,7 @@ Refer to the [master configuration file](master) to know the location for pillar
 Run these commands to copy [pillars files](pillars) at the root of the repository ```network_parameters``` 
 
 ```
-# cp automated_junos_configuration_backup_on_git_with_syslog_saltstack/pillars/* network_parameters/
+# cp automated_junos_show_commands_collection_with_syslog_saltstack/pillars/* network_parameters/
 # ls network_parameters/
 # cd network_parameters
 # git status
@@ -614,7 +614,7 @@ $ sudo -s
 
 Copy the [proxy configuration file](proxy) in the file ```/etc/salt/proxy```  
 ```
-# cp automated_junos_configuration_backup_on_git_with_syslog_saltstack/proxy /etc/salt/proxy
+# cp automated_junos_show_commands_collection_with_syslog_saltstack/proxy /etc/salt/proxy
 ```
 
 #### Start SaltStack proxy 
@@ -687,7 +687,7 @@ The files server has Junos configuration templates and SaltStack state files.
 Run these commands to copy these [Junos templates](junos) at the root of the repository ```network_model```.  
 
 ```
-# cp automated_junos_configuration_backup_on_git_with_syslog_saltstack/templates/* network_model/
+# cp automated_junos_show_commands_collection_with_syslog_saltstack/templates/* network_model/
 # cd network_model/
 # git add .
 # git commit -m "add junos templates"
@@ -703,7 +703,7 @@ run these commands to copy these [states files](states) at the root of the repos
 
 
 ```
-# cp automated_junos_configuration_backup_on_git_with_syslog_saltstack/states/* network_model/
+# cp automated_junos_show_commands_collection_with_syslog_saltstack/states/* network_model/
 # cd network_model/
 # git add *
 # git commit -m "add states files"
@@ -731,7 +731,7 @@ The reactor binds sls files to event tags. The reactor has a list of event tags 
 To map some events to reactor sls files, copy the [reactor configuration file](reactor.conf) to ```/etc/salt/master.d/reactor.conf```  
 
 ```
-# cp automated_junos_configuration_backup_on_git_with_syslog_saltstack/reactor.conf /etc/salt/master.d/
+# cp automated_junos_show_commands_collection_with_syslog_saltstack/reactor.conf /etc/salt/master.d/
 # more /etc/salt/master.d/reactor.conf
 ```
 This reactor binds ```jnpr/syslog/*/UI_COMMIT_COMPLETED``` to ```/srv/reactor/automate_show_commands.sls```  
@@ -751,7 +751,7 @@ create a ```/srv/reactor/``` directory
 ```
 and copy [these sls reactor files](reactors) to the directory ```/srv/reactor/```
 ```
-# cp automated_junos_configuration_backup_on_git_with_syslog_saltstack/reactor/* /srv/reactor/
+# cp automated_junos_show_commands_collection_with_syslog_saltstack/reactor/* /srv/reactor/
 # ls /srv/reactor/
 # more /srv/reactor/automate_show_commands.sls
 ```
@@ -764,11 +764,11 @@ It collects show commands and archives the data collected to a git server.
 # more network_model/collect_data_and_archive_to_git.sls
 ```
 
-The list of junos commands to collect is maintained with the variable ```backup_configuration```  
-the variable ```backup_configuration``` is defined in the pillar [backup_configuration.sls](pillars/backup_configuration.sls)  
+The list of junos commands to collect is maintained with the variable ```data_collection```  
+the variable ```data_collection``` is defined in the pillar [data_collection.sls](pillars/data_collection.sls)  
 Pillars are in the repository ```network_parameters```  
 ```
-# more network_parameters/backup_configuration.sls
+# more network_parameters/data_collection.sls
 ```
 
 #### Test your automation content manually from the master
@@ -778,8 +778,8 @@ The master will ask to the proxy ```vMX-1``` to execute the ```collect_data_and_
 ```
 salt vMX-1 state.apply collect_data_and_archive_to_git
 ```
-The data collected by the proxy ```vMX-1``` is archived in the repository ```configuration_backup```  
-Access Gitlab GUI with a browser ```http://100.123.35.1:9080/organization/configuration_backup```  
+The data collected by the proxy ```vMX-1``` is archived in the repository ```data_collected```  
+Access Gitlab GUI with a browser ```http://100.123.35.1:9080/organization/data_collected```  
 
 
 ### Configure Junos devices to send commit messages to salt master
@@ -820,7 +820,7 @@ To verify, run these commands:
 Most of the below commands are using the Git execution module.  
 So the master is asking to the minion to execute these modules. 
 ```
-# salt minion1 git.clone /tmp/local_copy git@100.123.35.1:organization/configuration_backup.git identity="/root/.ssh/id_rsa"
+# salt minion1 git.clone /tmp/local_copy git@100.123.35.1:organization/data_collected.git identity="/root/.ssh/id_rsa"
 # salt minion1 cmd.run "ls /tmp/local_copy"
 # salt minion1 git.config_set user.email me@example.com cwd=/tmp/local_copy
 # salt minion1 git.config_set user.name ksator cwd=/tmp/local_copy
@@ -836,7 +836,7 @@ So the master is asking to the minion to execute these modules.
 # salt minion1 git.status /tmp/local_copy
 # salt minion1 git.push /tmp/local_copy origin master identity="/root/.ssh/id_rsa"
 ```
-The above commands pushed the file ```test.txt``` to this repository ```configuration_backup``` of the gitlab organization ```organization```
+The above commands pushed the file ```test.txt``` to this repository ```data_collected``` of the gitlab organization ```organization```
 
 ## state files to collect Junos commands
 
@@ -876,10 +876,10 @@ The state file [collect_data_and_archive_to_git.sls](states/collect_data_and_arc
 # more network_model/collect_data_and_archive_to_git.sls
 ```
 
-The pillar [backup_configuration.sls](pillars/backup_configuration.sls) is used by the state file [collect_data_and_archive_to_git.sls](states/collect_data_and_archive_to_git.sls).  
+The pillar [data_collection.sls](pillars/data_collection.sls) is used by the state file [collect_data_and_archive_to_git.sls](states/collect_data_and_archive_to_git.sls).  
 It has the list of show commands we want SaltStack to collect. 
 ```
-# more network_parameters/backup_configuration.sls
+# more network_parameters/data_collection.sls
 ```
 
 # Run the demo
@@ -913,8 +913,8 @@ SaltStack rans show commands on this device to collect the new junos configurati
 
 ## Verify on the git server 
 
-The data collected by the proxy ```vMX-1```  is archived in the repository ```configuration_backup```
+The data collected by the proxy ```vMX-1```  is archived in the repository ```data_collected```
 
-Access Gitlab GUI with a browser ```http://100.123.35.1:9080/organization/configuration_backup```
+Access Gitlab GUI with a browser ```http://100.123.35.1:9080/organization/data_collected```
 
 
