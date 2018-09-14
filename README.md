@@ -63,7 +63,7 @@ Building blocks:
 
 ## Details 
 
-Here's a more detailled description of this [demo](Automated_Junos_data_collection.pdf) 
+Here's a more detailled description of this [demo](Automated_Junos_show_commands_collection.pdf) 
 
 ## Building blocks description
 
