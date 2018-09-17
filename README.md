@@ -682,7 +682,7 @@ The files server has Junos configuration templates and SaltStack state files.
 
 #### templates for Junos 
 
-Run these commands to copy these [Junos templates](junos) at the root of the repository ```network_model```.  
+Run these commands to copy these [Junos templates](templates) at the root of the repository ```network_model```.  
 
 ```
 # cp automated_junos_show_commands_collection_with_syslog_saltstack/templates/* network_model/
